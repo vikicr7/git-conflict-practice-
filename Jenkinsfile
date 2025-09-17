@@ -42,7 +42,7 @@ pipeline {
                             docker build -t vikicr7/masterimage . 
                             docker tag vikicr7/masterimage:latest vikicr7/masterimage:${BUILD_NUMBER}
                         """
-                    } else if (env.BRANCH_NAME == "developer") {
+                    } else if (env.BRANCH_NAME == "dev") {
                         sh """
                             docker build -t vikicr7/devimage . 
                             docker tag vikicr7/devimage:latest vikicr7/devimage:${BUILD_NUMBER}
@@ -57,7 +57,7 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == "master") {
                         sh "trivy image --exit-code 0 --severity HIGH,CRITICAL vikicr7/masterimage:latest"
-                    } else if (env.BRANCH_NAME == "developer") {
+                    } else if (env.BRANCH_NAME == "dev") {
                         sh "trivy image --exit-code 0 --severity HIGH,CRITICAL vikicr7/devimage:latest"
                     }
                 }
@@ -75,7 +75,7 @@ pipeline {
                                 docker push vikicr7/masterimage:latest
                                 docker push vikicr7/masterimage:${BUILD_NUMBER}
                             """
-                        } else if (env.BRANCH_NAME == "developer") {
+                        } else if (env.BRANCH_NAME == "dev") {
                             sh """
                                 docker push vikicr7/devimage:latest
                                 docker push vikicr7/devimage:${BUILD_NUMBER}
@@ -92,7 +92,7 @@ pipeline {
                     if (env.BRANCH_NAME == "master") {
                         sh "docker rm -f masterapp || true"
                         sh "docker run -itd --name masterapp -p 8010:80 vikicr7/masterimage:latest"
-                    } else if (env.BRANCH_NAME == "developer") {
+                    } else if (env.BRANCH_NAME == "dev") {
                         sh "docker rm -f devapp || true"
                         sh "docker run -itd --name devapp -p 8020:80 vikicr7/devimage:latest"
                     }
@@ -110,7 +110,7 @@ pipeline {
                             | grep -v "${BUILD_NUMBER}" \
                             | xargs -r docker rmi -f
                         """
-                    } else if (env.BRANCH_NAME == "developer") {
+                    } else if (env.BRANCH_NAME == "dev") {
                         sh """
                             docker images "vikicr7/devimage" --format "{{.Repository}}:{{.Tag}}" \
                             | grep -v "latest" \
