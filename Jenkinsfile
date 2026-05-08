@@ -37,7 +37,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == "master") {
+                    if (env.BRANCH_NAME == "main") {
                         sh """
                             docker build -t vikicr7/masterimage . 
                             docker tag vikicr7/masterimage:latest vikicr7/masterimage:${BUILD_NUMBER}
@@ -55,7 +55,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == "master") {
+                    if (env.BRANCH_NAME == "main") {
                         sh "trivy image --exit-code 0 --severity HIGH,CRITICAL vikicr7/masterimage:latest"
                     } else if (env.BRANCH_NAME == "developer") {
                         sh "trivy image --exit-code 0 --severity HIGH,CRITICAL vikicr7/devimage:latest"
@@ -70,7 +70,7 @@ pipeline {
                     sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
 
                     script {
-                        if (env.BRANCH_NAME == "master") {
+                        if (env.BRANCH_NAME == "main") {
                             sh """
                                 docker push vikicr7/masterimage:latest
                                 docker push vikicr7/masterimage:${BUILD_NUMBER}
@@ -89,7 +89,7 @@ pipeline {
         stage('Deploy on Docker') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == "master") {
+                    if (env.BRANCH_NAME == "main") {
                         sh "docker rm -f masterapp || true"
                         sh "docker run -itd --name masterapp -p 8010:80 vikicr7/masterimage:latest"
                     } else if (env.BRANCH_NAME == "developer") {
@@ -103,7 +103,7 @@ pipeline {
         stage('Cleanup Old Images') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == "master") {
+                    if (env.BRANCH_NAME == "main") {
                         sh """
                             docker images "vikicr7/masterimage" --format "{{.Repository}}:{{.Tag}}" \
                             | grep -v "latest" \
